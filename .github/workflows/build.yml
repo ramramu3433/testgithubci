@@ -17,6 +17,7 @@ jobs:
           JIRA_SERVER: ${{ secrets.JIRASERVER }}
           JIRA_USER: ${{ secrets.JIRAUSER }}
           JIRA_PWD: ${{ secrets.JIRAPASSWORD }}
+          GITHUBTOKEN: ${{ secrets.GITHUBTOKEN }}
         run: |
           set -x
           apt-get update && apt-get install jq

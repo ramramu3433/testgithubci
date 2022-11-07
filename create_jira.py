@@ -55,7 +55,7 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     }
     try:
         new_issue = jira.create_issue(fields=Issue)
-        Message="https://jira.eng.vmware.com/browse/"+new_issue
+        Message="https://jira.eng.vmware.com/browse/"+new_issue.id
         URL=issue_url+"/comments"
         github_token = os.environ.get("GITHUBTOKEN")
         resp = requests.post(URL, data = {"body":Message},  headers={"Authorization":"Bearer "+github_token})
