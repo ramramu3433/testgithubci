@@ -55,11 +55,11 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     }
     try:
         new_issue = jira.create_issue(fields=Issue)
-        print("New Jira_issue created {}".format(new_issue))
-        Message="https://jira.eng.vmware.com/browse/{}".format(new_issue)
+        Message="https://jira.eng.vmware.com/browse/"+new_issue
         URL=issue_url+"/comments"
         github_token = os.environ.get("GITHUBTOKEN")
-        requests.post(URL, data = {"body":Message},  headers={"Authorization":"Bearer "+github_token})
+        resp = requests.post(URL, data = {"body":Message},  headers={"Authorization":"Bearer "+github_token})
+        print(resp.status_code)
 
     except Exception as e:
         print("Could not create JIRA due to : {}", e)
