@@ -22,7 +22,7 @@ def parse_event_context():
         print("Please set EVENT_CONTEXT Variable with github issue event type...")
         sys.exit(1)
     except Exception as e:
-        print("Could not continue creation of NPT JIRA ticket...")    
+        print("Could not continue creation of NPT JIRA ticket due to {}...".format(e))    
         sys.exit(1)
 
 def run_create_issue(issue_body, issue_type, issue_title):
