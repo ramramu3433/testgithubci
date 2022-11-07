@@ -9,12 +9,11 @@ def parse_event_context():
     issue_type = ""
     issue_body = event_json["issue"]["body"]
     issue_title = event_json["issue"]["title"]
-    for labels in event_json["issue"]["labels"]:
-        for label in labels:
-            for issue_type_obj in issue_types:
-                for k,v in issue_type_obj.items():
-                    if label["name"] ==  v :
-                        issue_type = k
+    for label in event_json["issue"]["labels"]:
+        for issue_type_obj in issue_types:
+            for k,v in issue_type_obj.items():
+                if label["name"] ==  v:
+                    issue_type = k
     if issue_type == "":
         print("Making default type as task")
         issue_type = "Task"
