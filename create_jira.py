@@ -46,7 +46,7 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     except Exception as e:
         print("Could not connect to JIRA due to : {}".format(e))
         sys.exit(1)
-    Body = "Github Issue: {} \n {}".formt(issue_url, issue_body)
+    Body = "Github Issue: "+issue_url + "\n" + issue_body
     Issue = {
         'project': {'key': 'NPT'},
         'summary': issue_title ,
