@@ -58,7 +58,7 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
         Message="https://jira.eng.vmware.com/browse/"+new_issue.id
         URL=issue_url+"/comments"
         github_token = os.environ.get("GITHUBTOKEN")
-        resp = requests.post(URL, data = {"body":Message},  headers={"Authorization":"Bearer "+github_token})
+        resp = requests.post(URL, json = {"body":Message},  headers={"Authorization":"Bearer {}".format(github_token),"Accept":"application/vnd.github+json"})
         print(resp.status_code)
 
     except Exception as e:
