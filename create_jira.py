@@ -5,25 +5,22 @@ import os, sys
 issue_types = {"Bug":"bug","Task":"feature request"}
 def parse_event_context():
     event = os.environ.get("EVENT_CONTEXT")
-    try:
-        event_json = json.loads(event)
-        issue_type = ""
-        issue_body = event_json["issue"]["body"]
-        issue_title = event_json["issue"]["title"]
-        for label in event_json["issue"]["labels"]:
-            for k, v in label:
-                if label["name"] == v :
-                    issue_type = k
-        if issue_type == "":
-            print("Making default type as task")
-            issue_type = "Task"
-        return issue_body, issue_type, issue_title
-    except TypeError as e:
-        print("Please set EVENT_CONTEXT Variable with github issue event type...")
-        sys.exit(1)
-    except Exception as e:
-        print("Could not continue creation of NPT JIRA ticket due to {}...".format(e))    
-        sys.exit(1)
+    event_json = json.loads(event)
+    issue_type = ""
+    issue_body = event_json["issue"]["body"]
+    issue_title = event_json["issue"]["title"]
+    for label in event_json["issue"]["labels"]:
+        for k, v in label:
+            if label["name"] == v :
+                issue_type = k
+    if issue_type == "":
+        print("Making default type as task")
+        issue_type = "Task"
+    return issue_body, issue_type, issue_title
+    #print("Please set EVENT_CONTEXT Variable with github issue event type...")
+    #sys.exit(1)
+    #print("Could not continue creation of NPT JIRA ticket due to {}...".format(e))
+    #sys.exit(1)
 
 def run_create_issue(issue_body, issue_type, issue_title):
     """
@@ -47,7 +44,7 @@ def run_create_issue(issue_body, issue_type, issue_title):
         'project': {'key': 'NPT'},
         'summary': issue_title ,
         'description': issue_body,
-        'issuetype': {'name': issue_type },    
+        'issuetype': {'name': issue_type },
     }
     try:
         new_issue = jira.create_issue(fields=Issue)
