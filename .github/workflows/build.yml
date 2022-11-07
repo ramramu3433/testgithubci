@@ -14,8 +14,11 @@ jobs:
       - name: Create JIRA 
         env:
           EVENT_CONTEXT: ${{ toJSON(github.event) }}
+          JIRA_SERVER: ${{ secrets.JIRASERVER }}
+          JIRA_USER: ${{ secrets.JIRAUSER }}
+          JIRA_PWD: ${{ secrets.JIRAPASSWORD }}
         run: |
           set -x
           apt-get update && apt-get install jq
-          echo $EVENT_CONTEXT | jq '.'
           pip install jira && pip install yq
+          python create_jira.py
