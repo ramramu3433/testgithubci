@@ -11,7 +11,7 @@ def parse_event_context():
         issue_body = event_json["issue"]["body"]
         issue_title = event_json["issue"]["title"]
         for label in event_json["issue"]["labels"]:
-            for k, v in issue_types:
+            for k, v in label:
                 if label["name"] == v :
                     issue_type = k
         if issue_type == "":
