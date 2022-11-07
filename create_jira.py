@@ -1,5 +1,6 @@
 from jira import ( JIRA,JIRAError )
 import json
+import requests
 import os, sys
 
 issue_types = [{"Bug":"bug"},{"Task":"feature request"}]
@@ -45,15 +46,20 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     except Exception as e:
         print("Could not connect to JIRA due to : {}".format(e))
         sys.exit(1)
+    Body = "Github Issue: {} \n {}".formt(issue_url, issue_body)
     Issue = {
         'project': {'key': 'NPT'},
         'summary': issue_title ,
-        'description': "Github Issue: {}\n {}".formt(issue_url, issue_body),
+        'description': Body,
         'issuetype': {'name': issue_type },
     }
     try:
         new_issue = jira.create_issue(fields=Issue)
         print("New Jira_issue created {}".format(new_issue))
+        Message="https://jira.eng.vmware.com/browse/{}".format(new_issue)
+        URL=issue_url+"/comments"
+        github_token = os.environ.get("GITHUBTOKEN")
+        requests.post(URL, data = {"body":Message},  headers={"Authorization":"Bearer "+github_token})
 
     except Exception as e:
         print("Could not create JIRA due to : {}", e)
