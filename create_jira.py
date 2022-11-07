@@ -2,7 +2,7 @@ from jira import ( JIRA,JIRAError )
 import json
 import os, sys
 
-issue_types = {"Bug":"bug","Task":"feature request"}
+issue_types = [{"Bug":"bug"},{"Task":"feature request"}]
 def parse_event_context():
     event = os.environ.get("EVENT_CONTEXT")
     event_json = json.loads(event)
@@ -11,9 +11,10 @@ def parse_event_context():
     issue_title = event_json["issue"]["title"]
     for labels in event_json["issue"]["labels"]:
         for label in labels:
-            for k, v in label:
-                if label["name"] == v :
-                    issue_type = k
+            for issue_type_obj in issue_types:
+                for k,v in issue_type_obj.items():
+                    if label["name"] ==  v :
+                        issue_type = k
     if issue_type == "":
         print("Making default type as task")
         issue_type = "Task"
