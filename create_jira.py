@@ -4,25 +4,28 @@ import os, sys
 
 issue_types = [{"Bug":"bug"},{"Task":"feature request"}]
 def parse_event_context():
-    event = os.environ.get("EVENT_CONTEXT")
-    event_json = json.loads(event)
-    issue_type = ""
-    issue_body = event_json["issue"]["body"]
-    issue_title = event_json["issue"]["title"]
-    issue_url =  event_json["issue"]["url"]
-    for label in event_json["issue"]["labels"]:
-        for issue_type_obj in issue_types:
-            for k,v in issue_type_obj.items():
-                if label["name"] ==  v:
-                    issue_type = k
-    if issue_type == "":
-        print("Making default type as task")
-        issue_type = "Task"
-    return issue_body, issue_type, issue_title, issue_url
-    #print("Please set EVENT_CONTEXT Variable with github issue event type...")
-    #sys.exit(1)
-    #print("Could not continue creation of NPT JIRA ticket due to {}...".format(e))
-    #sys.exit(1)
+    """
+    Parse event context and run issue creation checks
+    """
+    try:
+        create_issue_for = False
+        event = os.environ.get("EVENT_CONTEXT")
+        event_json = json.loads(event)
+        issue_type = ""
+        issue_body = event_json["issue"]["body"]
+        issue_title = event_json["issue"]["title"]
+        issue_url =  event_json["issue"]["url"]
+        for label in event_json["issue"]["labels"]:
+            for issue_type_obj in issue_types:
+                for k,v in issue_type_obj.items():
+                    if label["name"] ==  v:
+                        issue_type = k
+                        create_issue_for = True
+        return issue_body, issue_type, issue_title, issue_url , create_issue_for
+    except Exception as e:
+        print("Please set EVENT_CONTEXT Variable with github issue event type... {}".format(e))
+        sys.exit(1)
+
 
 def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     """
@@ -45,7 +48,7 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     Issue = {
         'project': {'key': 'NPT'},
         'summary': issue_title ,
-        'description': "{} \n Github Issue: {}".formt(issue_body,issue_url),
+        'description': "Github Issue: {}\n {}".formt(issue_url, issue_body),
         'issuetype': {'name': issue_type },
     }
     try:
@@ -57,5 +60,9 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
         sys.exit(1)
 
 if __name__ == "__main__":
-    issue_body, issue_type, issue_title, issue_url = parse_event_context()
-    run_create_issue(issue_body, issue_type, issue_title, issue_url)
+    """
+    Run issue creation for bug and feature requests
+    """
+    issue_body, issue_type, issue_title, issue_url, create_issue_for = parse_event_context()
+    if create_issue_for:
+        run_create_issue(issue_body, issue_type, issue_title, issue_url)
