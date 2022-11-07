@@ -16,4 +16,6 @@ jobs:
           EVENT_CONTEXT: ${{ toJSON(github.event) }}
         run: |
           set -x
-          echo $EVENT_CONTEXT
+          apt-get update && apt-get install jq
+          echo $EVENT_CONTEXT | jq '.'
+          pip install jira && pip install yq
