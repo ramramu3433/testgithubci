@@ -1,7 +1,5 @@
 from jira import ( JIRA,JIRAError )
-import json
-import requests
-import os, sys
+import os, sys, requests, re, json
 
 issue_types = [{"Bug":"bug"},{"Task":"feature request"}]
 def parse_event_context():
@@ -27,8 +25,14 @@ def parse_event_context():
         print("Please set EVENT_CONTEXT Variable with github issue event type... {}".format(e))
         sys.exit(1)
 
+def get_jiraID(comment):
+    match=re.compile(r'.*https://jira.eng.vmware.com/browse/(.*)')
+    matches = re.findall(match,comment)
+    if len(matches) > 0 :
+        return matches[0]
+    return "" 
 
-def run_create_issue(issue_body, issue_type, issue_title, issue_url):
+def run_delete_issue(issue_body, issue_type, issue_title):
     """
     JIRA_SERVER environment variable will be feed from Github CI for creating issues
     JIRA_USER, JIRA_PWD will be kept as a secret for authentication
@@ -46,29 +50,29 @@ def run_create_issue(issue_body, issue_type, issue_title, issue_url):
     except Exception as e:
         print("Could not connect to JIRA due to : {}".format(e))
         sys.exit(1)
-    Body = "Github Issue: "+issue_url + "\n" + issue_body
     Issue = {
         'project': {'key': 'NPT'},
         'summary': issue_title ,
-        'description': Body,
+        'description': issue_body,
         'issuetype': {'name': issue_type },
     }
     try:
-        new_issue = jira.create_issue(fields=Issue)
-        Message="https://jira.eng.vmware.com/browse/"+new_issue.key
         URL=issue_url+"/comments"
         github_token = os.environ.get("GITHUBTOKEN")
-        resp = requests.post(URL, json = {"body":"New JIRA Created with ID: {}".format(Message)},  headers={"Authorization":"Bearer {}".format(github_token),"Accept":"application/vnd.github+json"})
-        print(resp.status_code)
-
+        resp = requests.get(URL,headers={"Authorization":"Bearer {}".format(github_token),"Accept":"application/vnd.github+json"})
+        response = json.loads(resp)
+        for comment in response:
+            jiraID = get_jiraID(comment)
+            if  jiraID != "":
+                break
+        issue = jira.issue(jiraID)
+        jira.add_comment(issue, "Github issue has been closed : {}".format(issue_url))
+        
     except Exception as e:
         print("Could not create JIRA due to : {}", e)
         sys.exit(1)
 
 if __name__ == "__main__":
-    """
-    Run issue creation for bug and feature requests
-    """
-    issue_body, issue_type, issue_title, issue_url, create_issue_for = parse_event_context()
+    issue_body, issue_type, issue_title, issue_url , create_issue_for = parse_event_context()
     if create_issue_for:
-        run_create_issue(issue_body, issue_type, issue_title, issue_url)
+        run_delete_issue(issue_body, issue_type, issue_title,issue_url , create_issue_for)
