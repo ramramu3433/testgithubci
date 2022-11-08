@@ -1,0 +1,28 @@
+name: Release compiler image and CLI Binaries
+on:
+  create:
+    tags:
+      - v*
+jobs:
+  release-compiler-image:
+    name: Release compiler image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout github repository
+        uses: actions/checkout@v2
+      - name: Setup Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.17.0'
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@1.0.11
+      - name: Upload CLI Binaries - DarwinAMD64
+        id: upload-cli-binaries-darwin-amd64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/ramramu3433/testgithubci/releases/$GITHUB_REF_NAME/assets
+          asset_path: ./testfile
+          asset_name: nexus-darwin_amd64
+          asset_content_type: application/octet-stream
