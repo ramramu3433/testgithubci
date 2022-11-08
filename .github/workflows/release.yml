@@ -1,0 +1,22 @@
+name: Release compiler image and CLI Binaries
+on:
+  create:
+    tags:
+      - v*
+jobs:
+  release-compiler-image:
+    name: Release compiler image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout github repository
+        uses: actions/checkout@v2
+      - name: Upload CLI Binaries - DarwinAMD64
+        id: upload-cli-binaries-darwin-amd64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/ramramu3433/testgithubci/releases/${{ github.ref }}/assets
+          asset_path: ./testfile
+          asset_name: nexus-darwin_amd64
+          asset_content_type: application/zip
